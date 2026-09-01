@@ -179,6 +179,8 @@ Record actual collaborators and topics before submission.
 - Added an idempotent Excel seed script that preserves the supplied entity relationships.
 - Added explicit Render wake-up/loading feedback in the frontend.
 - Kept database credentials outside committed configuration.
+- Added a class filter dropdown to the Students list and a per-class breakdown on the dashboard to mirror the Excel Summary sheet.
+- Added CSV export of a class's students (stretch goal) from the class detail view.
 
 ## 13. Self-assessment against the acceptance checklist
 
@@ -193,7 +195,7 @@ Record actual collaborators and topics before submission.
 | 7 | Usable at 375 px width | ⬜ |
 | 8 | No secrets committed | ⬜ |
 | 9 | README follows this template with live URLs | ⬜ |
-| 10 | No "COMPANY NAME" anywhere (`grep -ri companyName .` checked) | ⬜ |
+| 10 | No "COMPANY NAME" anywhere (`grep -ri companyName .` checked) | ✅ (`git grep` scan of all generated code found no matches) |
 | 11 | Preparation spikes in `/prep` and documented in §11 | ⬜ |
 | 12 | Submitted by 28 Aug 2026 | ⬜ |
 
