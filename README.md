@@ -59,7 +59,7 @@ Full **add / edit / delete** for all three entities, backed by a cloud REST API 
 **Repository layout**
 
 ```
-/frontend   # static site deployed to GitHub Pages
+/            # static site (index.html, app.js, config.js, styles.css) deployed to GitHub Pages
 /api        # Express REST API deployed to Render
 /db         # schema.sql and Excel seed script
 /prep       # connection readiness probes
@@ -93,7 +93,7 @@ Tick what is **working on the live URLs** (not just locally).
 
 ## 6. API reference
 
-Base URL: configured after Render deployment in `frontend/config.js`.
+Base URL: configured after Render deployment in `config.js`.
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -144,23 +144,23 @@ Record after cloud deployment: add, edit, and delete on all entities at mobile w
 ### Steps we followed
 1. Create a Neon PostgreSQL project. Run [db/schema.sql](db/schema.sql), set `DATABASE_URL` locally, then run `cd api && npm run seed`.
 2. In Render, create a Blueprint from `render.yaml`. Set `DATABASE_URL` and `CORS_ORIGIN` in the Render dashboard. Confirm `/api/health` and `/api/db-check`.
-3. Set the deployed Render URL in [frontend/config.js](frontend/config.js), enable GitHub Pages with GitHub Actions as the source, then push `main`.
+3. Set the deployed Render URL in [config.js](config.js), enable GitHub Pages with GitHub Actions as the source, then push `main`.
 
 ### Local development (optional, for dev only)
 ```bash
 # api
 cd api && copy .env.example .env && npm install && npm run dev
-# frontend
-cd frontend && npm install && npm run dev
+# frontend (from the repository root)
+npx serve .
 ```
-Open `frontend/index.html` with a static server, with `API_BASE_URL` set to the locally running API only during development.
+Open `index.html` with a static server, with `API_BASE_URL` set to the locally running API only during development.
 
 ## 11. Preparation & collaboration (see requirements.md §10)
 
 **Who helped / who we discussed with** (API hosting, env vars, DB design):
 Record actual collaborators and topics before submission.
 
-**Offline HTML draft:** [frontend](frontend)
+**Offline HTML draft:** [index.html](index.html)
 
 **Environment readiness checks** (keep the small test code in `/prep`):
 
@@ -201,7 +201,7 @@ Record actual collaborators and topics before submission.
 
 ## 14. Known issues / next steps
 
-Cloud deployment, screenshots, and recording remain pending account access. Before publishing, configure `frontend/config.js`, set Render environment variables, and complete the unchecked live verification items.
+Cloud deployment, screenshots, and recording remain pending account access. Before publishing, configure `config.js`, set Render environment variables, and complete the unchecked live verification items.
 
 ---
 *Reference docs: [`requirements.md`](requirements.md) · [`tuition_school_dummy_data.xlsx`](tuition_school_dummy_data.xlsx)*
