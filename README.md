@@ -60,8 +60,8 @@ Full **add / edit / delete** for all three entities, backed by a cloud REST API 
 
 ```
 /            # static site (index.html, app.js, config.js, styles.css) deployed to GitHub Pages
-/api        # Express REST API deployed to Render
-/db         # schema.sql and Excel seed script
+/api        # Express REST API deployed to Render (src/seed.js loads the Excel seed data)
+/db         # schema.sql
 /prep       # connection readiness probes
 README.md
 ```
@@ -176,6 +176,11 @@ Record actual collaborators and topics before submission.
 | 4 | API → DB `/api/db-check` | Implemented in [api/src/server.js](api/src/server.js) | ⬜ |
 | 5 | GitHub Pages page fetching the API (no CORS error) | [prep/health-check.html](prep/health-check.html) | ⬜ |
 | 6 | Secrets only in Render env vars; `.env` git-ignored | [.gitignore](.gitignore) | ⬜ |
+
+> If `npm run seed` fails locally with `ECONNRESET` (common on corporate networks that reset the raw Postgres wire
+> protocol even though the TCP port is reachable), run [db/seed_neon_sql_editor.sql](db/seed_neon_sql_editor.sql)
+> directly in the Neon SQL Editor instead — it contains the same schema and seed data as `db/schema.sql` and
+> `api/src/seed.js`, with no local network dependency.
 
 ## 12. Vibe-coding log (what we asked the AI, what worked, what didn't)
 

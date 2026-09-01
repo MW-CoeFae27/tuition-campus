@@ -6,7 +6,7 @@ import pg from "pg";
 const { Pool } = pg;
 const app = express();
 const port = process.env.PORT || 3000;
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : undefined });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 app.use(cors({ origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : true }));

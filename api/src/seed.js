@@ -6,10 +6,10 @@ import XLSX from "xlsx";
 
 const { Pool } = pg;
 const directory = path.dirname(fileURLToPath(import.meta.url));
-const workbookPath = path.join(directory, "..", "tuition_school_dummy_data.xlsx");
+const workbookPath = path.join(directory, "..", "..", "tuition_school_dummy_data.xlsx");
 const workbook = XLSX.readFile(workbookPath, { cellDates: true });
 const rows = (sheet) => XLSX.utils.sheet_to_json(workbook.Sheets[sheet], { defval: null, raw: false });
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const date = (value) => value ? String(value).slice(0, 10) : null;
 
 const client = await pool.connect();
