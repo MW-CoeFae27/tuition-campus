@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: sunrise-tuition-api
+    runtime: node
+    rootDir: api
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: NODE_VERSION
+        value: 20

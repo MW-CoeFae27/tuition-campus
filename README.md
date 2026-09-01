@@ -4,7 +4,7 @@
 > document used to **judge your outcome**. Fill in every section marked `<!-- TODO -->`. Keep the headings.
 >
 > ⚠️ Do **not** mention the names *companyName*, *XXX_Flex* or *YYY_Flex????* anywhere in this repo (trademarks — see `requirements.md`).
-> 📅 Deadline: **28 August 2026** · Estimated effort: **2 days**
+> 📅 Deadline: **03 Sep 2026** · Estimated effort: **2 days**
 
 ---
 
@@ -19,9 +19,9 @@
 
 | Component | Platform | URL | Status |
 |---|---|---|---|
-| Frontend | GitHub Pages | <!-- TODO https://<user>.github.io/<repo>/ --> | ⬜ |
-| API | Render | <!-- TODO https://<service>.onrender.com/api/health --> | ⬜ |
-| Database | Neon (PostgreSQL) | Project name: <!-- TODO --> (no connection string here!) | ⬜ |
+| Frontend | GitHub Pages | Pending GitHub Pages publication | ⬜ |
+| API | Render | Pending Render service publication (`/api/health`) | ⬜ |
+| Database | Neon (PostgreSQL) | Provision a Neon project; do not publish its connection string | ⬜ |
 
 > ℹ️ The Render free tier sleeps when idle — the first API call can take 30–60 s. The UI shows a loading state.
 
@@ -41,8 +41,8 @@ Full **add / edit / delete** for all three entities, backed by a cloud REST API 
 [Browser / Mobile] ──HTTPS──> [GitHub Pages: frontend]
                                      │  fetch (JSON)
                                      ▼
-                              [Render: REST API]   <!-- TODO: framework, e.g. Node + Express -->
-                                     │  SQL        <!-- TODO: driver/ORM, e.g. pg / Prisma -->
+                              [Render: REST API]   Node.js + Express
+                                     │  SQL        pg
                                      ▼
                               [Neon: PostgreSQL]
 ```
@@ -51,20 +51,20 @@ Full **add / edit / delete** for all three entities, backed by a cloud REST API 
 
 | Layer | Choice | Why |
 |---|---|---|
-| Frontend | <!-- TODO e.g. React + Vite + Tailwind --> | |
-| API | <!-- TODO e.g. Node 20 + Express --> | |
-| DB / ORM | <!-- TODO e.g. Neon PostgreSQL + pg --> | |
-| CI/CD | <!-- TODO e.g. GitHub Actions → gh-pages; Render auto-deploy from main --> | |
+| Frontend | Vanilla HTML, CSS, JavaScript | No build step; static and responsive by design |
+| API | Node 20 + Express | Small REST service suited to Render |
+| DB / ORM | Neon PostgreSQL + `pg` | SQL schema and explicit transactions |
+| CI/CD | GitHub Actions Pages workflow; Render Blueprint | Push `main` to publish frontend and redeploy API |
 
 **Repository layout**
 
 ```
 /frontend   # static site deployed to GitHub Pages
-/api        # REST API deployed to Render
-/db         # schema.sql, seed.sql / seed script
+/api        # Express REST API deployed to Render
+/db         # schema.sql and Excel seed script
+/prep       # connection readiness probes
 README.md
 ```
-<!-- TODO: adjust to your actual layout -->
 
 ## 5. Features achieved
 
@@ -93,7 +93,7 @@ Tick what is **working on the live URLs** (not just locally).
 
 ## 6. API reference
 
-Base URL: `<!-- TODO https://<service>.onrender.com -->`
+Base URL: configured after Render deployment in `frontend/config.js`.
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -112,11 +112,11 @@ curl https://<service>.onrender.com/api/classes
 
 ## 7. Database schema
 
-<!-- TODO: paste or link your schema.sql; a short ERD is a bonus -->
+Schema: [db/schema.sql](db/schema.sql). `classes.teacher_id` is the assignment source of truth. It allows one teacher to teach more than one class, as required by the supplied workbook.
 
 ```
 classes  (class_id PK, class_code UNIQUE, class_name, subjects, schedule_days, schedule_time, room, teacher_id FK→teachers NULL, status)
-teachers (teacher_id PK, teacher_code UNIQUE, full_name, email, phone, subject_specialty, class_id FK→classes NULL, join_date, status)
+teachers (teacher_id PK, teacher_code UNIQUE, full_name, email, phone, subject_specialty, join_date, status)
 students (student_id PK, student_code UNIQUE, full_name, gender, age, class_id FK→classes NOT NULL, guardian_name, guardian_phone, guardian_email, enrolment_date, status)
 ```
 
@@ -126,11 +126,11 @@ students (student_id PK, student_code UNIQUE, full_name, gender, age, class_id F
 |---|---|
 | <!-- TODO ![mobile](docs/mobile.png) --> | <!-- TODO ![desktop](docs/desktop.png) --> |
 
-<!-- TODO: add at least: list view, create/edit form, delete confirmation, class detail -->
+Capture after cloud deployment: list view, form, deletion confirmation, and class detail at desktop and 375 px.
 
 ## 9. Demo
 
-<!-- TODO: link to 3–5 min screen recording OR note "live demo on <date>" -->
+Record after cloud deployment: add, edit, and delete on all entities at mobile width.
 
 ## 10. Setup & deployment notes
 
@@ -139,47 +139,46 @@ students (student_id PK, student_code UNIQUE, full_name, gender, age, class_id F
 |---|---|
 | `DATABASE_URL` | Neon connection string (never committed) |
 | `CORS_ORIGIN` | GitHub Pages origin, e.g. `https://<user>.github.io` |
-| <!-- TODO --> | |
+| `NODE_VERSION` | `20` |
 
 ### Steps we followed
-1. <!-- TODO Neon: create project → run db/schema.sql → run seed -->
-2. <!-- TODO Render: new Web Service from /api, set env vars, build/start commands -->
-3. <!-- TODO GitHub Pages: build /frontend, deploy via Actions / gh-pages branch, set API base URL -->
+1. Create a Neon PostgreSQL project. Run [db/schema.sql](db/schema.sql), set `DATABASE_URL` locally, then run `cd api && npm run seed`.
+2. In Render, create a Blueprint from `render.yaml`. Set `DATABASE_URL` and `CORS_ORIGIN` in the Render dashboard. Confirm `/api/health` and `/api/db-check`.
+3. Set the deployed Render URL in [frontend/config.js](frontend/config.js), enable GitHub Pages with GitHub Actions as the source, then push `main`.
 
 ### Local development (optional, for dev only)
 ```bash
 # api
-cd api && cp .env.example .env && npm install && npm run dev
+cd api && copy .env.example .env && npm install && npm run dev
 # frontend
 cd frontend && npm install && npm run dev
 ```
-<!-- TODO: adjust to your stack -->
+Open `frontend/index.html` with a static server, with `API_BASE_URL` set to the locally running API only during development.
 
 ## 11. Preparation & collaboration (see requirements.md §10)
 
 **Who helped / who we discussed with** (API hosting, env vars, DB design):
-<!-- TODO: names + topics, e.g. "Discussed Neon schema & Render env vars with <name>" -->
+Record actual collaborators and topics before submission.
 
-**Offline HTML draft:** <!-- TODO: link to folder/commit, e.g. `/prep/draft-ui/` -->
+**Offline HTML draft:** [frontend](frontend)
 
 **Environment readiness checks** (keep the small test code in `/prep`):
 
 | # | Check | Evidence (file / URL) | Done |
 |---|---|---|---|
-| 1 | Neon table created + row inserted | | ⬜ |
-| 2 | DB connection script (`SELECT NOW()`) | `prep/db-test.*` | ⬜ |
-| 3 | Render hello-world `/api/health` | | ⬜ |
-| 4 | API → DB `/api/db-check` | | ⬜ |
-| 5 | GitHub Pages page fetching the API (no CORS error) | | ⬜ |
-| 6 | Secrets only in Render env vars; `.env` git-ignored | | ⬜ |
+| 1 | Neon table created + row inserted | Run [db/schema.sql](db/schema.sql) in Neon | ⬜ |
+| 2 | DB connection script (`SELECT NOW()`) | [prep/db-test.js](prep/db-test.js) | ⬜ |
+| 3 | Render hello-world `/api/health` | Implemented in [api/src/server.js](api/src/server.js) | ⬜ |
+| 4 | API → DB `/api/db-check` | Implemented in [api/src/server.js](api/src/server.js) | ⬜ |
+| 5 | GitHub Pages page fetching the API (no CORS error) | [prep/health-check.html](prep/health-check.html) | ⬜ |
+| 6 | Secrets only in Render env vars; `.env` git-ignored | [.gitignore](.gitignore) | ⬜ |
 
 ## 12. Vibe-coding log (what we asked the AI, what worked, what didn't)
 
-<!-- TODO: 5–10 bullets. Example:
-- Prompted for schema.sql from requirements.md → worked first try
-- CORS blocked Pages origin → fixed by adding CORS_ORIGIN env var
-- Render cold start confused testers → added loading spinner
--->
+- Modelled classes as the teacher-assignment source because the supplied workbook assigns one teacher to two classes.
+- Added an idempotent Excel seed script that preserves the supplied entity relationships.
+- Added explicit Render wake-up/loading feedback in the frontend.
+- Kept database credentials outside committed configuration.
 
 ## 13. Self-assessment against the acceptance checklist
 
@@ -200,7 +199,7 @@ cd frontend && npm install && npm run dev
 
 ## 14. Known issues / next steps
 
-<!-- TODO -->
+Cloud deployment, screenshots, and recording remain pending account access. Before publishing, configure `frontend/config.js`, set Render environment variables, and complete the unchecked live verification items.
 
 ---
 *Reference docs: [`requirements.md`](requirements.md) · [`tuition_school_dummy_data.xlsx`](tuition_school_dummy_data.xlsx)*
