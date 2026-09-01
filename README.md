@@ -144,7 +144,11 @@ Record after cloud deployment: add, edit, and delete on all entities at mobile w
 ### Steps we followed
 1. Create a Neon PostgreSQL project. Run [db/schema.sql](db/schema.sql), set `DATABASE_URL` locally, then run `cd api && npm run seed`.
 2. In Render, create a Blueprint from `render.yaml`. Set `DATABASE_URL` and `CORS_ORIGIN` in the Render dashboard. Confirm `/api/health` and `/api/db-check`.
-3. Set the deployed Render URL in [config.js](config.js), enable GitHub Pages with GitHub Actions as the source, then push `main`.
+3. Set the deployed Render URL in [config.js](config.js), commit, and push `main`.
+4. In the repository **Settings → Pages**, set **Source** to **GitHub Actions** (not "Deploy from a branch"). The
+   [deploy-pages workflow](.github/workflows/deploy-pages.yml) publishes only `index.html`, `app.js`, `config.js`,
+   `styles.css`, and `.nojekyll` — this ensures `index.html` is served as the site, not `README.md` or a Jekyll-built
+   page. `README.md` is only ever shown when browsing the repository on github.com; it has no effect on the Pages site.
 
 ### Local development (optional, for dev only)
 ```bash

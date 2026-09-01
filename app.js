@@ -6,8 +6,18 @@ const plural = { classes: "classes", teachers: "teachers", students: "students" 
 const singular = { classes: "Class", teachers: "Teacher", students: "Student" };
 
 async function request(path, options = {}) {
-  const response = await fetch(`${API}${path}`, { headers: { "Content-Type": "application/json" }, ...options });
+  if (!API) throw new Error("API base URL is not configured. Set API_BASE_URL in config.js to your Render service URL.");
+  let response;
+  try {
+    response = await fetch(`${API}${path}`, { headers: { "Content-Type": "application/json" }, ...options });
+  } catch {
+    throw new Error("Could not reach the API. Check your connection and the API base URL in config.js.");
+  }
   if (response.status === 204) return null;
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    throw new Error(`The API returned an unexpected response (HTTP ${response.status}). Check the API base URL in config.js.`);
+  }
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Request failed.");
   return data;
@@ -45,6 +55,6 @@ function openForm(kind, record = {}) {
 }
 async function remove(kind, id) { if (!confirm(`Delete this ${singular[kind].toLowerCase()}?`)) return; try { await request(`/api/${kind}/${id}`, { method: "DELETE" }); await refresh(); toast("Record deleted."); } catch (error) { toast(error.message); } }
 function exportStudentsCsv(classId) { const rows = state.students.filter((item) => item.class_id === classId); const header = "student_code,full_name,gender,age,guardian_name,guardian_phone,guardian_email,status"; const body = rows.map((item) => [item.student_code, item.full_name, item.gender, item.age, item.guardian_name, item.guardian_phone, item.guardian_email, item.status].map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`).join(",")).join("\n"); const blob = new Blob([`${header}\n${body}`], { type: "text/csv" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `${state.classes.find((item) => item.class_id === classId)?.class_code || "class"}-students.csv`; link.click(); URL.revokeObjectURL(link.href); }
-async function refresh() { app.innerHTML = `<div class="loading">Loading school records...</div>`; try { await load(); const current = route(); current === "dashboard" ? renderDashboard() : current.startsWith("class/") ? renderDetail(current.split("/")[1]) : renderList(current); } catch (error) { app.innerHTML = `<div class="empty"><h1>Could not load records</h1><p>${escape(error.message)} The service may be waking up. Try again in a moment.</p><button class="button" data-action="retry">Retry</button></div>`; } }
+async function refresh() { app.innerHTML = `<div class="loading">Loading school records...</div>`; try { await load(); const current = route(); current === "dashboard" ? renderDashboard() : current.startsWith("class/") ? renderDetail(current.split("/")[1]) : renderList(current); } catch (error) { const hint = error.message.includes("config.js") ? "" : " The service may be waking up. Try again in a moment."; app.innerHTML = `<div class="empty"><h1>Could not load records</h1><p>${escape(error.message)}${hint}</p><button class="button" data-action="retry">Retry</button></div>`; } }
 document.addEventListener("click", (event) => { const button = event.target.closest("button[data-action]"); if (!button) return; const { action, kind, id } = button.dataset; if (action === "new") openForm(kind); if (action === "edit") openForm(kind, state[kind].find((item) => item[`${kind.slice(0, -1)}_id`] === id)); if (action === "delete") remove(kind, id); if (action === "detail") location.hash = `class/${id}`; if (action === "back") location.hash = "classes"; if (action === "retry") refresh(); if (action === "export") exportStudentsCsv(id); });
 window.addEventListener("hashchange", refresh); refresh();
