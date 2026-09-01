@@ -24,6 +24,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html app.js config.js styles.css .nojekyll _site/
+          sed -i "s/app\.js\"/app.js?v=${GITHUB_SHA::7}\"/; s/config\.js\"/config.js?v=${GITHUB_SHA::7}\"/; s/styles\.css\"/styles.css?v=${GITHUB_SHA::7}\"/" _site/index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
