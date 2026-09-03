@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "./env.js";
 import cors from "cors";
 import express from "express";
 import pg from "pg";
@@ -22,7 +22,12 @@ const databaseError = (error, response) => {
   throw error;
 };
 
-app.get("/api/health", (_request, response) => response.json({ status: "ok" }));
+app.get("/", (_request, response) => response.json({
+  service: "sunrise-tuition-api",
+  status: "ok",
+  endpoints: ["/api/health", "/api/db-check", "/api/classes", "/api/teachers", "/api/students"]
+}));
+app.get("/api/health", (_request, response) => response.json({ status: "ok", databaseUrlConfigured: Boolean(process.env.DATABASE_URL) }));
 app.get("/api/db-check", asyncRoute(async (_request, response) => {
   const { rows } = await pool.query("SELECT NOW() AS now");
   response.json({ now: rows[0].now });
@@ -123,5 +128,6 @@ app.post("/api/students", asyncRoute(async (request, response) => { if (!validat
 app.put("/api/students/:id", asyncRoute(async (request, response) => { if (!validateStudent(request.body, response)) return; try { const { rows } = await pool.query(`UPDATE students SET student_code=$1,full_name=$2,gender=$3,age=$4,class_id=$5,guardian_name=$6,guardian_phone=$7,guardian_email=$8,enrolment_date=$9,status=$10,updated_at=NOW() WHERE student_id=$11 RETURNING *`, [...studentValues(request.body), request.params.id]); if (!rows.length) return response.status(404).json({ error: "Student not found." }); response.json(rows[0]); } catch (error) { databaseError(error, response); } }));
 app.delete("/api/students/:id", asyncRoute(async (request, response) => { const result = await pool.query("DELETE FROM students WHERE student_id=$1", [request.params.id]); if (!result.rowCount) return response.status(404).json({ error: "Student not found." }); response.status(204).end(); }));
 
-app.use((error, _request, response, _next) => { console.error(error); response.status(500).json({ error: "An unexpected server error occurred." }); });
+app.use((_request, response) => response.status(404).json({ error: "Not found." }));
+app.use((error, _request, response, _next) => { console.error(error); response.status(500).json({ error: "An unexpected server error occurred.", code: error.code }); });
 app.listen(port, () => console.log(`API listening on ${port}`));
